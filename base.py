@@ -1,13 +1,16 @@
 import networkx as nx
 from itertools import combinations
-from random import random, randrange
+from random import random, randrange, sample
 import matplotlib.pyplot as plt
 
 
 def draw_our_graph(G):
-    nx.draw(G)
+    nx.draw(G, with_labels = True)
 
 def r_regular(n, r):
+    def get_index(idx, r, n):
+        return idx + r if idx + r < n else idx + r - n
+    
     # Input
     if n == r or n*r % 2 == 1:
         print "Input error"
@@ -23,19 +26,12 @@ def r_regular(n, r):
     # Generate r-regular graph
     # We need to create nr edges
 
-    possibles = list(combinations(G.nodes(), 2))
+    random_order = sample(G.nodes(), n)
 
-    while len(G.edges()) < n*r:
-        # Randomly select an edge from possibles
-        idx = randrange(0, len(possibles))
-        edge = possibles[idx]
-        
-        # Check if edge can be in G
-        if len(G.neighbors(edge[0])) < r and len(G.neighbors(edge[1])) < r:
-            G.add_edge(*edge)
-            possibles.pop(idx)
-        nx.draw(G)
-        plt.show()
+    for idx, x in enumerate(random_order):
+        for idy in range(1, int(r/2)+1):
+            idz = get_index(idx, idy, n)
+            G.add_edge(x, random_order[idz])
     
     return G 
 
@@ -51,6 +47,7 @@ def p_ER(n, p):
     # For every combination (x,y) in nodes() (x, y) in edges with probability p
     for edge in combinations(G.nodes(), 2):
         if random() < p:
+            # same as G.add_edge(edge[0], edge[1])
             G.add_edge(*edge)
 
     return G
@@ -64,7 +61,7 @@ print(len(myGraph.edges())/(n*(n-1)/2.0))
 draw_our_graph(myGraph)
 plt.show()   
 
-n, r = 6, 2
+n, r = 8, 4 
 
 myGraph = r_regular(n, r)
 
