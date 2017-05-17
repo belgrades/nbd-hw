@@ -76,7 +76,7 @@ def p_ER(n, p):
 
 def dijkstra(G, u, v):
     '''
-    Find all possible paths from u to v
+    Find all possible paths from u to all nodes
     '''
 
     Q, dist, prev = [], {}, {}
@@ -89,9 +89,9 @@ def dijkstra(G, u, v):
 
     # Add u to Q
     dist[u] = 0
-    prev[u] = u
+    prev[u] = [u]
 
-    print(Q)
+    # print(Q)
 
     while Q:
         # Minimum distance in Q
@@ -99,12 +99,12 @@ def dijkstra(G, u, v):
 
         # Select randomly from all possible options
         a = sample([q for q in Q if dist[q] == min_dis], 1)[0]
-        print(a)
+        # print(a)
        
         Q.remove(a)
-        print(Q)
+        # print(Q)
         for neighbor in G.neighbors(a):
-            print(neighbor)
+          #  print(neighbor)
             if dist[a]+1 < dist[neighbor]:
                 # New distance, clear neighbors. Set distance
                 prev[neighbor] = [a]
@@ -113,11 +113,60 @@ def dijkstra(G, u, v):
                 # We have a tie, add to prev a
                 prev[neighbor].append(a)
 
+
+        if v == a:
+            Q = []
+                
     return dist, prev
 
-# Parameters for p_ER
+def create_paths(prev, dist, u, v):
+    # Create all the paths from u to v
+    paths, Q, actual = [[v]], [v], v
 
+    if dist[v] == np.inf:
+        return []
+
+    while actual != u:
+        # Select actual node as a queue
+        # print(Q)
+        # print(actual)
+        actual = Q[0]
+
+        # Remove actual node from Q
+        Q.remove(actual)
+
+        # Retrieve all paths which last node is actual
+        paths_actual = [path for path in paths if path[-1] == actual]
+
+        # Remove this paths from paths structure
+        for path in paths_actual:
+            paths.remove(path)
+
+        # Create a new path for every previous of actual
+        # Append p in Q
+        for p in prev[actual]:
+            Q.append(p)
+            for path in paths_actual:
+                paths.append(path+[p])
+
+    return paths
+            
+
+# Parameters for p_ER
+'''
 n, p = 10, 0.25
+
+myGraph = p_ER(n, p)
+'''
+
+n = 4
+
+myGraph = create_graph(n)
+myGraph.add_edge(1,2)
+myGraph.add_edge(1,3)
+myGraph.add_edge(3,2)
+
+n, p = 100, 0.25
 
 myGraph = p_ER(n, p)
 
@@ -127,10 +176,11 @@ print(len(myGraph.edges())/(n*(n-1)/2.0))
 draw_our_graph(myGraph)
 plt.show()   
 
-u, v = 4, 10
+u, v = 1, 4
 dist, prev = dijkstra(myGraph, u, v)
 
 pretty = pp.PrettyPrinter(indent=3)
 
 pretty.pprint(prev)
 pretty.pprint(dist)
+pretty.pprint(create_paths(prev, dist, u, v))
