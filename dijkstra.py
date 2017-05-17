@@ -132,6 +132,9 @@ def create_paths(prev, dist, u, v):
         # print(actual)
         actual = Q[0]
 
+        if actual == u:
+            break
+
         # Remove actual node from Q
         Q.remove(actual)
 
@@ -149,6 +152,9 @@ def create_paths(prev, dist, u, v):
             for path in paths_actual:
                 paths.append(path+[p])
 
+    for path in paths:
+        path.reverse()
+    
     return paths
             
 
@@ -159,6 +165,34 @@ n, p = 10, 0.25
 myGraph = p_ER(n, p)
 '''
 
+times = 10
+
+for x in range(times):
+    n, r = 100, 16 
+
+    trials = 1
+    is_r_regular, myGraph = r_regular(n, r)
+
+    while not is_r_regular:
+        is_r_regular, myGraph = r_regular(n, r)
+        trials += 1
+
+    print("Trials", trials)
+    #print("Check r_regular:", check_r_regular(n, r, myGraph))
+
+    draw_our_graph(myGraph)
+    plt.show()
+    u, v = 1, 4
+    dist, prev = dijkstra(myGraph, u, v)
+
+    pretty = pp.PrettyPrinter(indent=3)
+
+#    pretty.pprint(prev)
+#    pretty.pprint(dist)
+    pretty.pprint(create_paths(prev, dist, u, v))
+
+
+
 n = 4
 
 myGraph = create_graph(n)
@@ -166,7 +200,7 @@ myGraph.add_edge(1,2)
 myGraph.add_edge(1,3)
 myGraph.add_edge(3,2)
 
-n, p = 100, 0.25
+n, p = 200, 0.05
 
 myGraph = p_ER(n, p)
 
